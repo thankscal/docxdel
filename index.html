@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>華航工作經歷簿｜保留封面＋個人資訊＋工作經歷（強制分頁）</title>
+    <title>華航工作經歷簿｜保留封面+個人資訊+工作經歷｜強制分頁</title>
     <style>
         * { box-sizing: border-box; }
         body { background: #eef2f7; font-family: 'Segoe UI', Roboto, system-ui; margin: 0; padding: 30px 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
@@ -14,17 +14,19 @@
         .step-title { font-weight: bold; font-size: 1.1rem; margin-bottom: 10px; color: #003366; }
         .upload-area { border: 2px dashed #b0c4de; border-radius: 24px; background: #f8fafd; padding: 30px 20px; text-align: center; cursor: pointer; transition: 0.2s; margin: 15px 0 20px; }
         .upload-area:hover { background: #eef3fc; border-color: #0066b3; }
-        .btn { background: #0066b3; border: none; color: white; padding: 10px 26px; border-radius: 40px; cursor: pointer; display: inline-block; }
+        .btn { background: #0066b3; border: none; color: white; padding: 10px 26px; border-radius: 40px; cursor: pointer; display: inline-block; font-size: 1rem; }
         .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        .status { margin-top: 20px; padding: 10px; border-radius: 14px; background: #f0f4fa; }
+        .status { margin-top: 20px; padding: 10px; border-radius: 14px; background: #f0f4fa; font-size: 0.9rem; white-space: pre-wrap; }
         .loader { display: inline-block; width: 18px; height: 18px; border: 2px solid #ccc; border-top-color: #0066b3; border-radius: 50%; animation: spin 0.6s linear infinite; vertical-align: middle; margin-right: 8px; }
         @keyframes spin { to { transform: rotate(360deg); } }
         .footer { font-size: 0.7rem; text-align: center; color: #6f8faa; margin-top: 25px; }
         .note { background: #fff8e7; border-radius: 14px; padding: 12px 18px; font-size: 0.8rem; margin-top: 20px; border: 1px solid #ffe0a3; }
+        .error-detail { color: #b33; margin-top: 8px; font-size: 0.8rem; }
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/mammoth@1.4.2/mammoth.browser.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/html-docx-js@0.3.1/dist/html-docx.js"></script>
+    <!-- 載入外部函式庫，並在載入失敗時提示 -->
+    <script src="https://cdn.jsdelivr.net/npm/mammoth@1.4.2/mammoth.browser.min.js" onerror="window.mammothLoadError=true"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js" onerror="window.saveAsLoadError=true"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html-docx-js@0.3.1/dist/html-docx.js" onerror="window.htmlDocxLoadError=true"></script>
 </head>
 <body>
 <div class="card">
@@ -65,14 +67,19 @@
 
 <script>
     (function() {
-        function waitForLibs() {
-            return new Promise((resolve) => {
-                if (typeof mammoth !== 'undefined' && typeof saveAs !== 'undefined' && typeof htmlDocx !== 'undefined') {
-                    resolve();
-                } else {
-                    setTimeout(() => waitForLibs().then(resolve), 100);
-                }
-            });
+        // 檢查依賴是否載入
+        function checkLibs() {
+            const missing = [];
+            if (typeof mammoth === 'undefined') missing.push('mammoth');
+            if (typeof saveAs === 'undefined') missing.push('FileSaver');
+            if (typeof htmlDocx === 'undefined') missing.push('html-docx');
+            if (missing.length) {
+                const errMsg = `❌ 必要函式庫載入失敗：${missing.join(', ')}。請檢查網路連線後重新整理頁面。`;
+                document.getElementById('statusMessage').innerHTML = errMsg;
+                document.getElementById('statusMessage').style.color = '#b33';
+                return false;
+            }
+            return true;
         }
 
         const dropzone = document.getElementById('dropzone');
@@ -133,7 +140,7 @@
             if (e.target.files.length) handleFile(e.target.files[0]);
         });
 
-        // 萃取並加入分頁符號 (使用 CSS page-break-before 或直接在區塊前插入分頁元素)
+        // 萃取並加入分頁符號
         function extractSectionsWithPageBreaks(fullHtml) {
             const parser = new DOMParser();
             const doc = parser.parseFromString(fullHtml, 'text/html');
@@ -142,20 +149,18 @@
             const cloneNode = (node) => node.cloneNode(true);
             const container = doc.createElement('div');
 
-            // 輔助函式：建立分頁元件 (在 Word 中有效)
             function addPageBreak() {
-                const pageBreakDiv = doc.createElement('div');
-                pageBreakDiv.style.pageBreakBefore = 'always';
-                pageBreakDiv.style.clear = 'both';
-                // 確保分頁符號在 Word 中生效 (有些解析器需要內容)
-                pageBreakDiv.innerHTML = '&nbsp;';
-                pageBreakDiv.style.height = '0px';
-                pageBreakDiv.style.margin = '0px';
-                pageBreakDiv.style.padding = '0px';
-                return pageBreakDiv;
+                const div = doc.createElement('div');
+                div.style.pageBreakBefore = 'always';
+                div.style.height = '0';
+                div.style.margin = '0';
+                div.style.padding = '0';
+                div.style.clear = 'both';
+                div.innerHTML = '&nbsp;';
+                return div;
             }
 
-            // ---- 1. 擷取封面 (從開頭到「個人資訊」之前) ----
+            // ---- 1. 封面 (開頭到「個人資訊」前) ----
             let coverElems = [];
             for (let el of allElements) {
                 const text = (el.innerText || '').toLowerCase();
@@ -166,11 +171,9 @@
                 coverElems = allElements.slice(0, Math.min(5, allElements.length));
             }
             coverElems.forEach(el => container.appendChild(cloneNode(el)));
-            
-            // 封面後強制分頁
             container.appendChild(addPageBreak());
 
-            // ---- 2. 擷取「個人資訊」區塊 ----
+            // ---- 2. 個人資訊區塊 ----
             let personalElems = [];
             let inPersonal = false;
             for (let el of allElements) {
@@ -180,9 +183,7 @@
                 }
                 if (inPersonal) {
                     const lower = text.toLowerCase();
-                    if (lower.includes('工作經歷紀錄') || lower.includes('maintenance experience records')) {
-                        break;
-                    }
+                    if (lower.includes('工作經歷紀錄') || lower.includes('maintenance experience records')) break;
                     personalElems.push(el);
                 }
             }
@@ -191,10 +192,9 @@
             } else {
                 container.appendChild(doc.createElement('p')).innerText = '⚠️ 未偵測到「個人資訊」區塊';
             }
-            // 個人資訊後分頁
             container.appendChild(addPageBreak());
 
-            // ---- 3. 擷取「工作經歷紀錄」區塊（到文件結尾）----
+            // ---- 3. 工作經歷紀錄區塊 ----
             let workElems = [];
             let inWork = false;
             for (let el of allElements) {
@@ -212,7 +212,7 @@
                 container.appendChild(doc.createElement('p')).innerText = '⚠️ 未偵測到「工作經歷紀錄」區塊';
             }
 
-            // 確保簽名欄位存在（如果原本的工作經歷區塊內沒有，補一個）
+            // 補簽名欄
             let hasSignature = false;
             for (let el of workElems) {
                 if ((el.innerText || '').includes('Name:') && (el.innerText || '').includes('Signature')) {
@@ -229,23 +229,20 @@
                     <td style="border:none;"><strong>ID No.:</strong> ___________</td>
                     <td style="border:none;"><strong>License / No.:</strong> ___________</td>
                     </tr>
-                </table></div>`;
+                80</div>`;
                 container.appendChild(sigDiv);
             }
 
-            // 最終 HTML 字串，加上額外樣式確保分頁在 Word 中正常
             return `<!DOCTYPE html>
             <html>
-            <head><meta charset="UTF-8"><title>CAL_精簡_分頁版</title>
+            <head><meta charset="UTF-8"><title>CAL_精簡分頁版</title>
             <style>
                 body { margin: 1.2cm auto; padding: 15px 25px; max-width: 1100px; font-family: 'Calibri', 'Segoe UI', Arial, sans-serif; background: white; line-height: 1.35; }
                 img { max-width: 100%; height: auto; }
                 table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 10pt; border: 1px solid #7f7f7f; }
                 td, th { border: 1px solid #7f7f7f; padding: 6px 8px; vertical-align: top; }
                 h1, h2, h3, h4 { color: #003366; }
-                div, p, table, .MsoNormal { page-break-inside: avoid; }
-                /* 強制分頁樣式 */
-                .page-break { page-break-before: always; clear: both; height: 0; margin: 0; padding: 0; }
+                .page-break { page-break-before: always; height: 0; margin: 0; }
             </style>
             </head>
             <body>${container.innerHTML}</body>
@@ -254,11 +251,12 @@
 
         async function processDocx() {
             if (!uploadedFile || isProcessing) return;
+            if (!checkLibs()) return;
+
             isProcessing = true;
             processBtn.disabled = true;
-            setStatus('🔄 正在解析並保留三個區塊（自動分頁）...', false, true);
+            setStatus('🔄 正在解析 DOCX 並保留三個區塊（自動分頁）...', false, true);
             try {
-                await waitForLibs();
                 const arrayBuffer = await uploadedFile.arrayBuffer();
                 const result = await mammoth.convertToHtml({
                     arrayBuffer: arrayBuffer,
@@ -268,7 +266,7 @@
                     })
                 });
                 const fullHtml = result.value;
-                if (!fullHtml || fullHtml.trim().length < 50) throw new Error('轉換結果過短');
+                if (!fullHtml || fullHtml.trim().length < 50) throw new Error('轉換結果過短，檔案可能不是標準 DOCX');
                 
                 const finalHtml = extractSectionsWithPageBreaks(fullHtml);
                 const docxBlob = htmlDocx.asBlob(finalHtml, {
@@ -289,6 +287,8 @@
 
         processBtn.addEventListener('click', processDocx);
         updateUI();
+        // 初次檢查函式庫
+        checkLibs();
     })();
 </script>
 </body>
