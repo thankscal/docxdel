@@ -2,293 +2,197 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>華航工作經歷簿｜保留封面+個人資訊+工作經歷｜強制分頁</title>
+    <title>華航工作經歷簿｜精簡工具（加強版型）</title>
     <style>
-        * { box-sizing: border-box; }
-        body { background: #eef2f7; font-family: 'Segoe UI', Roboto, system-ui; margin: 0; padding: 30px 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        .card { max-width: 1000px; width: 100%; background: white; border-radius: 28px; box-shadow: 0 20px 35px -12px rgba(0,0,0,0.2); overflow: hidden; }
+        body { background: #eef2f7; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 30px 20px; display: flex; justify-content: center; }
+        .card { max-width: 1000px; background: white; border-radius: 28px; box-shadow: 0 20px 35px -12px rgba(0,0,0,0.2); overflow: hidden; }
         .header { background: #003366; padding: 20px 28px; color: white; }
-        .header h1 { margin: 0 0 6px; font-size: 1.7rem; }
         .content { padding: 28px 30px 35px; }
         .step-box { background: #eef3fc; border-radius: 20px; padding: 20px; margin-bottom: 25px; border-left: 6px solid #0066b3; }
-        .step-title { font-weight: bold; font-size: 1.1rem; margin-bottom: 10px; color: #003366; }
-        .upload-area { border: 2px dashed #b0c4de; border-radius: 24px; background: #f8fafd; padding: 30px 20px; text-align: center; cursor: pointer; transition: 0.2s; margin: 15px 0 20px; }
-        .upload-area:hover { background: #eef3fc; border-color: #0066b3; }
-        .btn { background: #0066b3; border: none; color: white; padding: 10px 26px; border-radius: 40px; cursor: pointer; display: inline-block; font-size: 1rem; }
+        .upload-area { border: 2px dashed #b0c4de; border-radius: 24px; background: #f8fafd; padding: 30px; text-align: center; cursor: pointer; margin-bottom: 20px; }
+        .btn { background: #0066b3; color: white; border: none; padding: 10px 26px; border-radius: 40px; cursor: pointer; font-size: 1rem; }
         .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        .status { margin-top: 20px; padding: 10px; border-radius: 14px; background: #f0f4fa; font-size: 0.9rem; white-space: pre-wrap; }
+        .status { margin-top: 20px; padding: 10px; border-radius: 14px; background: #f0f4fa; }
         .loader { display: inline-block; width: 18px; height: 18px; border: 2px solid #ccc; border-top-color: #0066b3; border-radius: 50%; animation: spin 0.6s linear infinite; vertical-align: middle; margin-right: 8px; }
         @keyframes spin { to { transform: rotate(360deg); } }
-        .footer { font-size: 0.7rem; text-align: center; color: #6f8faa; margin-top: 25px; }
-        .note { background: #fff8e7; border-radius: 14px; padding: 12px 18px; font-size: 0.8rem; margin-top: 20px; border: 1px solid #ffe0a3; }
-        .error-detail { color: #b33; margin-top: 8px; font-size: 0.8rem; }
+        .note { background: #fff8e7; padding: 12px 18px; margin-top: 20px; border-radius: 14px; }
     </style>
-    <!-- 載入外部函式庫，並在載入失敗時提示 -->
-    <script src="https://cdn.jsdelivr.net/npm/mammoth@1.4.2/mammoth.browser.min.js" onerror="window.mammothLoadError=true"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js" onerror="window.saveAsLoadError=true"></script>
-    <script src="https://cdn.jsdelivr.net/npm/html-docx-js@0.3.1/dist/html-docx.js" onerror="window.htmlDocxLoadError=true"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mammoth@1.4.2/mammoth.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html-docx-js@0.3.1/dist/html-docx.js"></script>
 </head>
 <body>
 <div class="card">
     <div class="header">
-        <h1>✈ 華航修護工作經歷簿 · 精簡分頁版</h1>
-        <p>保留「封面＋個人資訊＋工作經歷紀錄」｜每個區塊獨立一頁｜刪除其餘章節</p>
+        <h1>✈ 華航工作經歷簿 · 精簡工具（加強版型）</h1>
+        <p>保留 封面 + 個人資訊 + 工作經歷｜每個區塊獨立一頁｜自動刪除其餘章節</p>
     </div>
     <div class="content">
         <div class="step-box">
-            <div class="step-title">📌 步驟 1：將舊版 .doc 轉換為 .docx</div>
-            <div class="step-desc">
-                若檔案為 .doc，請用 Word 開啟 → 「另存新檔」→ 類型選擇「Word 文件 (*.docx)」。
-            </div>
-        </div>
-        <div class="step-box">
-            <div class="step-title">📤 步驟 2：上傳完整的原始 .docx 檔案</div>
+            <div class="step-title">📤 上傳 .docx 檔案</div>
             <div id="dropzone" class="upload-area">
                 <div style="font-size: 40px;">📄</div>
-                <div>點擊或拖曳上傳 <strong style="color:#003366;">.docx 檔案</strong></div>
-                <div style="font-size:0.75rem;">(僅支援 .docx)</div>
-                <input type="file" id="fileInput" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none;">
+                <div>點擊或拖曳上傳 <strong>.docx</strong> 檔案</div>
+                <input type="file" id="fileInput" accept=".docx" style="display:none;">
             </div>
             <div style="text-align: right;">
-                <button id="processBtn" class="btn" disabled>▶ 開始處理（保留＋分頁）</button>
+                <button id="processBtn" class="btn" disabled>▶ 開始精簡並下載</button>
             </div>
         </div>
         <div id="statusMessage" class="status"></div>
         <div class="note">
-            💡 <strong>處理說明</strong><br>
-            • 自動刪除 PTR、OJT、評鑑等章節。<br>
-            • <strong>保留三個區塊</strong>：封面(含LOGO)、個人資訊表格、工作經歷紀錄表格。<br>
-            • 每個區塊之間會<strong>強制分頁</strong>，確保列印或閱讀時各自獨立一頁。<br>
-            • 圖片、表格、字型、顏色完全保留原始樣式。
+            💡 若下載後版型仍不滿意，建議使用 Word 手動刪除章節（方法如上），僅需 1 分鐘且完全不跑版。
         </div>
-        <div class="footer">China Airlines Engineering & Maintenance Organization</div>
     </div>
 </div>
 
 <script>
     (function() {
-        // 檢查依賴是否載入
-        function checkLibs() {
-            const missing = [];
-            if (typeof mammoth === 'undefined') missing.push('mammoth');
-            if (typeof saveAs === 'undefined') missing.push('FileSaver');
-            if (typeof htmlDocx === 'undefined') missing.push('html-docx');
-            if (missing.length) {
-                const errMsg = `❌ 必要函式庫載入失敗：${missing.join(', ')}。請檢查網路連線後重新整理頁面。`;
-                document.getElementById('statusMessage').innerHTML = errMsg;
-                document.getElementById('statusMessage').style.color = '#b33';
-                return false;
-            }
-            return true;
-        }
-
         const dropzone = document.getElementById('dropzone');
         const fileInput = document.getElementById('fileInput');
         const processBtn = document.getElementById('processBtn');
         const statusDiv = document.getElementById('statusMessage');
-        let uploadedFile = null;
-        let isProcessing = false;
+        let uploadedFile = null, processing = false;
 
         function setStatus(msg, isError = false, isLoading = false) {
             statusDiv.innerHTML = '';
-            if (isLoading) {
-                statusDiv.innerHTML = '<span class="loader"></span> ' + msg;
-                statusDiv.style.color = '#0066b3';
-            } else {
-                statusDiv.innerHTML = (isError ? '⚠️ ' : '✅ ') + msg;
-                statusDiv.style.color = isError ? '#b33' : '#1e6b3b';
-            }
+            if (isLoading) statusDiv.innerHTML = '<span class="loader"></span> ' + msg;
+            else statusDiv.innerHTML = (isError ? '⚠️ ' : '✅ ') + msg;
+            statusDiv.style.color = isError ? '#b33' : '#1e6b3b';
         }
 
-        function updateUI() {
-            processBtn.disabled = !uploadedFile || isProcessing;
-        }
+        function updateBtn() { processBtn.disabled = !uploadedFile || processing; }
 
         async function handleFile(file) {
-            const ext = file.name.split('.').pop().toLowerCase();
-            if (ext !== 'docx') {
-                setStatus('❌ 只接受 .docx 格式，請先將 .doc 另存為 .docx 後再上傳。', true);
-                uploadedFile = null;
-                updateUI();
-                return;
-            }
-            try {
-                const header = await file.slice(0, 4).arrayBuffer();
-                const bytes = new Uint8Array(header);
-                const isZip = (bytes[0] === 0x50 && bytes[1] === 0x4B);
-                if (!isZip) throw new Error();
-            } catch(e) {
-                setStatus('❌ 檔案不是有效的 DOCX，請重新另存為 .docx。', true);
-                uploadedFile = null;
-                updateUI();
-                return;
+            if (!file.name.toLowerCase().endsWith('.docx')) {
+                setStatus('❌ 僅接受 .docx 格式', true);
+                uploadedFile = null; updateBtn(); return;
             }
             uploadedFile = file;
-            setStatus(`✔ 已選取：${file.name}`, false);
-            updateUI();
+            setStatus(`✔ 已選取：${file.name}`);
+            updateBtn();
         }
 
         dropzone.addEventListener('click', () => fileInput.click());
-        dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.style.background = '#eef3fc'; });
-        dropzone.addEventListener('dragleave', () => { dropzone.style.background = '#f8fafd'; });
-        dropzone.addEventListener('drop', (e) => {
+        dropzone.addEventListener('dragover', e => e.preventDefault());
+        dropzone.addEventListener('drop', e => {
             e.preventDefault();
-            dropzone.style.background = '#f8fafd';
-            if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+            if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
         });
-        fileInput.addEventListener('change', (e) => {
-            if (e.target.files.length) handleFile(e.target.files[0]);
-        });
+        fileInput.addEventListener('change', e => { if (e.target.files[0]) handleFile(e.target.files[0]); });
 
-        // 萃取並加入分頁符號
-        function extractSectionsWithPageBreaks(fullHtml) {
+        function extractSections(html) {
             const parser = new DOMParser();
-            const doc = parser.parseFromString(fullHtml, 'text/html');
+            const doc = parser.parseFromString(html, 'text/html');
             const body = doc.body;
-            const allElements = Array.from(body.children);
-            const cloneNode = (node) => node.cloneNode(true);
+            const all = Array.from(body.children);
+            const clone = n => n.cloneNode(true);
             const container = doc.createElement('div');
 
-            function addPageBreak() {
+            // 分頁元件
+            const pageBreak = () => {
                 const div = doc.createElement('div');
                 div.style.pageBreakBefore = 'always';
                 div.style.height = '0';
                 div.style.margin = '0';
-                div.style.padding = '0';
-                div.style.clear = 'both';
                 div.innerHTML = '&nbsp;';
                 return div;
-            }
+            };
 
-            // ---- 1. 封面 (開頭到「個人資訊」前) ----
-            let coverElems = [];
-            for (let el of allElements) {
-                const text = (el.innerText || '').toLowerCase();
-                if (text.includes('個人資訊') || text.includes('personnel data')) break;
-                coverElems.push(el);
+            // 1. 封面 (到「個人資訊」之前)
+            let cover = [];
+            for (let el of all) {
+                if ((el.innerText || '').toLowerCase().includes('個人資訊')) break;
+                cover.push(el);
             }
-            if (coverElems.length === 0 && allElements.length) {
-                coverElems = allElements.slice(0, Math.min(5, allElements.length));
-            }
-            coverElems.forEach(el => container.appendChild(cloneNode(el)));
-            container.appendChild(addPageBreak());
+            if (!cover.length && all.length) cover = all.slice(0, 5);
+            cover.forEach(el => container.appendChild(clone(el)));
+            container.appendChild(pageBreak());
 
-            // ---- 2. 個人資訊區塊 ----
-            let personalElems = [];
+            // 2. 個人資訊 (到「工作經歷紀錄」之前)
+            let personal = [];
             let inPersonal = false;
-            for (let el of allElements) {
-                const text = (el.innerText || '');
-                if (!inPersonal && (text.includes('個人資訊') || text.includes('Personnel Data'))) {
-                    inPersonal = true;
-                }
+            for (let el of all) {
+                let txt = el.innerText || '';
+                if (!inPersonal && (txt.includes('個人資訊') || txt.includes('Personnel Data'))) inPersonal = true;
                 if (inPersonal) {
-                    const lower = text.toLowerCase();
-                    if (lower.includes('工作經歷紀錄') || lower.includes('maintenance experience records')) break;
-                    personalElems.push(el);
+                    if (txt.toLowerCase().includes('工作經歷紀錄') || txt.toLowerCase().includes('maintenance experience')) break;
+                    personal.push(el);
                 }
             }
-            if (personalElems.length) {
-                personalElems.forEach(el => container.appendChild(cloneNode(el)));
-            } else {
-                container.appendChild(doc.createElement('p')).innerText = '⚠️ 未偵測到「個人資訊」區塊';
-            }
-            container.appendChild(addPageBreak());
+            if (personal.length) personal.forEach(el => container.appendChild(clone(el)));
+            else container.appendChild(doc.createElement('p')).innerText = '⚠️ 未偵測到個人資訊';
+            container.appendChild(pageBreak());
 
-            // ---- 3. 工作經歷紀錄區塊 ----
-            let workElems = [];
+            // 3. 工作經歷紀錄 (到結尾)
+            let work = [];
             let inWork = false;
-            for (let el of allElements) {
-                const text = (el.innerText || '');
-                if (!inWork && (text.includes('工作經歷紀錄') || text.includes('Maintenance Experience records'))) {
-                    inWork = true;
-                }
-                if (inWork) {
-                    workElems.push(el);
-                }
+            for (let el of all) {
+                let txt = el.innerText || '';
+                if (!inWork && (txt.includes('工作經歷紀錄') || txt.includes('Maintenance Experience'))) inWork = true;
+                if (inWork) work.push(el);
             }
-            if (workElems.length) {
-                workElems.forEach(el => container.appendChild(cloneNode(el)));
-            } else {
-                container.appendChild(doc.createElement('p')).innerText = '⚠️ 未偵測到「工作經歷紀錄」區塊';
-            }
+            if (work.length) work.forEach(el => container.appendChild(clone(el)));
+            else container.appendChild(doc.createElement('p')).innerText = '⚠️ 未偵測到工作經歷紀錄';
 
-            // 補簽名欄
-            let hasSignature = false;
-            for (let el of workElems) {
-                if ((el.innerText || '').includes('Name:') && (el.innerText || '').includes('Signature')) {
-                    hasSignature = true;
-                    break;
-                }
-            }
-            if (!hasSignature) {
-                const sigDiv = doc.createElement('div');
-                sigDiv.innerHTML = `<div style="margin-top: 30px;">
-                    <table style="width:100%; border:none;"><tr>
+            // 補簽名 (若無)
+            let hasSig = false;
+            for (let el of work) if ((el.innerText || '').includes('Name:') && (el.innerText || '').includes('Signature')) hasSig = true;
+            if (!hasSig) {
+                const sig = doc.createElement('div');
+                sig.innerHTML = `<div style="margin-top: 30px;"><table style="width:100%; border:none;"><tr>
                     <td style="border:none;"><strong>Name:</strong> _________________</td>
                     <td style="border:none;"><strong>Signature:</strong> _________________</td>
                     <td style="border:none;"><strong>ID No.:</strong> ___________</td>
                     <td style="border:none;"><strong>License / No.:</strong> ___________</td>
-                    </tr>
-                80</div>`;
-                container.appendChild(sigDiv);
+                </tr></table></div>`;
+                container.appendChild(sig);
             }
 
             return `<!DOCTYPE html>
             <html>
-            <head><meta charset="UTF-8"><title>CAL_精簡分頁版</title>
+            <head><meta charset="UTF-8">
             <style>
-                body { margin: 1.2cm auto; padding: 15px 25px; max-width: 1100px; font-family: 'Calibri', 'Segoe UI', Arial, sans-serif; background: white; line-height: 1.35; }
+                @page { margin: 2.54cm; }
+                body { margin: 0; padding: 0; font-family: 'Calibri', 'Times New Roman', serif; line-height: 1.3; background: white; }
                 img { max-width: 100%; height: auto; }
-                table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 10pt; border: 1px solid #7f7f7f; }
-                td, th { border: 1px solid #7f7f7f; padding: 6px 8px; vertical-align: top; }
-                h1, h2, h3, h4 { color: #003366; }
-                .page-break { page-break-before: always; height: 0; margin: 0; }
+                table { border-collapse: collapse; width: 100%; margin: 10pt 0; font-size: 11pt; }
+                td, th { border: 1px solid #7f7f7f; padding: 6pt 8pt; vertical-align: top; }
+                .MsoNormal, p, h1, h2, h3 { margin: 0 0 6pt; }
             </style>
             </head>
             <body>${container.innerHTML}</body>
             </html>`;
         }
 
-        async function processDocx() {
-            if (!uploadedFile || isProcessing) return;
-            if (!checkLibs()) return;
-
-            isProcessing = true;
-            processBtn.disabled = true;
-            setStatus('🔄 正在解析 DOCX 並保留三個區塊（自動分頁）...', false, true);
+        async function process() {
+            if (!uploadedFile || processing) return;
+            if (typeof mammoth === 'undefined' || typeof saveAs === 'undefined' || typeof htmlDocx === 'undefined') {
+                setStatus('❌ 函式庫載入失敗，請檢查網路後重新整理頁面', true);
+                return;
+            }
+            processing = true; updateBtn();
+            setStatus('🔄 處理中，請稍候...', false, true);
             try {
-                const arrayBuffer = await uploadedFile.arrayBuffer();
-                const result = await mammoth.convertToHtml({
-                    arrayBuffer: arrayBuffer,
-                    convertImage: mammoth.images.imgElement(async (image) => {
-                        const b64 = await image.read('base64');
-                        return { src: `data:${image.contentType};base64,${b64}`, alt: image.altText || '' };
-                    })
-                });
-                const fullHtml = result.value;
-                if (!fullHtml || fullHtml.trim().length < 50) throw new Error('轉換結果過短，檔案可能不是標準 DOCX');
-                
-                const finalHtml = extractSectionsWithPageBreaks(fullHtml);
-                const docxBlob = htmlDocx.asBlob(finalHtml, {
-                    orientation: 'portrait',
-                    margins: { top: 1000, right: 900, bottom: 1000, left: 900 }
-                });
-                const outName = uploadedFile.name.replace(/\.docx$/i, '') + '_精簡分頁版.docx';
-                saveAs(docxBlob, outName);
-                setStatus(`✨ 完成！封面、個人資訊、工作經歷各佔一頁，其餘已刪除。`, false);
+                const ab = await uploadedFile.arrayBuffer();
+                const result = await mammoth.convertToHtml({ arrayBuffer: ab, convertImage: mammoth.images.imgElement(async img => {
+                    const b64 = await img.read('base64');
+                    return { src: `data:${img.contentType};base64,${b64}`, alt: img.altText || '' };
+                })});
+                const finalHtml = extractSections(result.value);
+                const blob = htmlDocx.asBlob(finalHtml, { orientation: 'portrait', margins: { top: 1440, right: 1440, bottom: 1440, left: 1440 } });
+                const outName = uploadedFile.name.replace(/\.docx$/i, '') + '_精簡版.docx';
+                saveAs(blob, outName);
+                setStatus(`✨ 完成！已下載 ${outName}`);
             } catch (err) {
                 console.error(err);
-                setStatus(`❌ 失敗：${err.message || '請確認檔案格式正確'}`, true);
+                setStatus(`❌ 失敗：${err.message || '請確認檔案為標準 DOCX'}`, true);
             } finally {
-                isProcessing = false;
-                updateUI();
+                processing = false; updateBtn();
             }
         }
-
-        processBtn.addEventListener('click', processDocx);
-        updateUI();
-        // 初次檢查函式庫
-        checkLibs();
+        processBtn.addEventListener('click', process);
+        updateBtn();
     })();
 </script>
 </body>
