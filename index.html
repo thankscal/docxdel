@@ -2,137 +2,25 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>華航工作經歷簿｜保留封面＋個人資訊＋工作經歷紀錄</title>
+    <title>華航工作經歷簿｜保留封面＋個人資訊＋工作經歷（強制分頁）</title>
     <style>
-        * {
-            box-sizing: border-box;
-        }
-        body {
-            background: #eef2f7;
-            font-family: 'Segoe UI', Roboto, 'Noto Sans', system-ui, sans-serif;
-            margin: 0;
-            padding: 30px 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
-        .card {
-            max-width: 1000px;
-            width: 100%;
-            background: white;
-            border-radius: 28px;
-            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.2);
-            overflow: hidden;
-        }
-        .header {
-            background: #003366;
-            padding: 20px 28px;
-            color: white;
-        }
-        .header h1 {
-            margin: 0 0 6px;
-            font-weight: 600;
-            font-size: 1.7rem;
-        }
-        .header p {
-            margin: 0;
-            opacity: 0.85;
-            font-size: 0.9rem;
-        }
-        .content {
-            padding: 28px 30px 35px;
-        }
-        .step-box {
-            background: #eef3fc;
-            border-radius: 20px;
-            padding: 20px;
-            margin-bottom: 25px;
-            border-left: 6px solid #0066b3;
-        }
-        .step-title {
-            font-weight: bold;
-            font-size: 1.1rem;
-            margin-bottom: 10px;
-            color: #003366;
-        }
-        .step-desc {
-            margin-left: 20px;
-            color: #2c3e55;
-        }
-        .upload-area {
-            border: 2px dashed #b0c4de;
-            border-radius: 24px;
-            background: #f8fafd;
-            padding: 30px 20px;
-            text-align: center;
-            cursor: pointer;
-            transition: 0.2s;
-            margin: 15px 0 20px;
-        }
-        .upload-area:hover {
-            background: #eef3fc;
-            border-color: #0066b3;
-        }
-        .btn {
-            background: #0066b3;
-            border: none;
-            color: white;
-            padding: 10px 26px;
-            font-size: 0.9rem;
-            font-weight: 500;
-            border-radius: 40px;
-            cursor: pointer;
-            transition: 0.2s;
-            display: inline-block;
-        }
-        .btn:hover {
-            background: #004b8f;
-            transform: translateY(-1px);
-        }
-        .btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-        }
-        .status {
-            margin-top: 20px;
-            font-weight: 500;
-            padding: 10px;
-            border-radius: 14px;
-            background: #f0f4fa;
-        }
-        .loader {
-            display: inline-block;
-            width: 18px;
-            height: 18px;
-            border: 2px solid #ccc;
-            border-top-color: #0066b3;
-            border-radius: 50%;
-            animation: spin 0.6s linear infinite;
-            vertical-align: middle;
-            margin-right: 8px;
-        }
+        * { box-sizing: border-box; }
+        body { background: #eef2f7; font-family: 'Segoe UI', Roboto, system-ui; margin: 0; padding: 30px 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .card { max-width: 1000px; width: 100%; background: white; border-radius: 28px; box-shadow: 0 20px 35px -12px rgba(0,0,0,0.2); overflow: hidden; }
+        .header { background: #003366; padding: 20px 28px; color: white; }
+        .header h1 { margin: 0 0 6px; font-size: 1.7rem; }
+        .content { padding: 28px 30px 35px; }
+        .step-box { background: #eef3fc; border-radius: 20px; padding: 20px; margin-bottom: 25px; border-left: 6px solid #0066b3; }
+        .step-title { font-weight: bold; font-size: 1.1rem; margin-bottom: 10px; color: #003366; }
+        .upload-area { border: 2px dashed #b0c4de; border-radius: 24px; background: #f8fafd; padding: 30px 20px; text-align: center; cursor: pointer; transition: 0.2s; margin: 15px 0 20px; }
+        .upload-area:hover { background: #eef3fc; border-color: #0066b3; }
+        .btn { background: #0066b3; border: none; color: white; padding: 10px 26px; border-radius: 40px; cursor: pointer; display: inline-block; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .status { margin-top: 20px; padding: 10px; border-radius: 14px; background: #f0f4fa; }
+        .loader { display: inline-block; width: 18px; height: 18px; border: 2px solid #ccc; border-top-color: #0066b3; border-radius: 50%; animation: spin 0.6s linear infinite; vertical-align: middle; margin-right: 8px; }
         @keyframes spin { to { transform: rotate(360deg); } }
-        .footer {
-            font-size: 0.7rem;
-            text-align: center;
-            color: #6f8faa;
-            margin-top: 25px;
-        }
-        hr {
-            margin: 20px 0;
-            border: none;
-            border-top: 1px solid #dce5f0;
-        }
-        .note {
-            background: #fff8e7;
-            border-radius: 14px;
-            padding: 12px 18px;
-            font-size: 0.8rem;
-            margin-top: 20px;
-            border: 1px solid #ffe0a3;
-        }
+        .footer { font-size: 0.7rem; text-align: center; color: #6f8faa; margin-top: 25px; }
+        .note { background: #fff8e7; border-radius: 14px; padding: 12px 18px; font-size: 0.8rem; margin-top: 20px; border: 1px solid #ffe0a3; }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/mammoth@1.4.2/mammoth.browser.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
@@ -141,24 +29,18 @@
 <body>
 <div class="card">
     <div class="header">
-        <h1>✈ 華航修護工作經歷簿 · 精簡工具</h1>
-        <p>只保留「封面＋個人資訊＋工作經歷紀錄」，刪除其餘全部章節</p>
+        <h1>✈ 華航修護工作經歷簿 · 精簡分頁版</h1>
+        <p>保留「封面＋個人資訊＋工作經歷紀錄」｜每個區塊獨立一頁｜刪除其餘章節</p>
     </div>
     <div class="content">
         <div class="step-box">
             <div class="step-title">📌 步驟 1：將舊版 .doc 轉換為 .docx</div>
             <div class="step-desc">
-                如果您手邊的檔案是 <strong>.doc</strong> 格式，請先用 Microsoft Word 開啟，然後：<br>
-                「檔案」→「另存新檔」→ 檔案類型選擇 <strong>Word 文件 (*.docx)</strong> → 儲存。<br>
-                <span style="color:#b45f06;">※ 若您已有 .docx 檔案，可直接跳至步驟 2。</span>
+                若檔案為 .doc，請用 Word 開啟 → 「另存新檔」→ 類型選擇「Word 文件 (*.docx)」。
             </div>
         </div>
-
         <div class="step-box">
             <div class="step-title">📤 步驟 2：上傳完整的原始 .docx 檔案</div>
-            <div class="step-desc">
-                請上傳您原始的完整工作經歷簿（包含封面、個人資訊、PTR、OJT、評鑑、工作經歷等所有章節）
-            </div>
             <div id="dropzone" class="upload-area">
                 <div style="font-size: 40px;">📄</div>
                 <div>點擊或拖曳上傳 <strong style="color:#003366;">.docx 檔案</strong></div>
@@ -166,22 +48,18 @@
                 <input type="file" id="fileInput" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none;">
             </div>
             <div style="text-align: right;">
-                <button id="processBtn" class="btn" disabled>▶ 開始精簡（保留封面＋個人資訊＋工作經歷）</button>
+                <button id="processBtn" class="btn" disabled>▶ 開始處理（保留＋分頁）</button>
             </div>
         </div>
-
         <div id="statusMessage" class="status"></div>
-
         <div class="note">
             💡 <strong>處理說明</strong><br>
-            • 本工具會自動刪除「新人PTR紀錄」、「OJT紀錄與評鑑紀錄」等章節。<br>
-            • <strong>保留三個區塊：</strong> ① 文件開頭的封面（含華航LOGO、標題）；② 第2節「個人資訊」完整表格；③ 第5節「工作經歷紀錄」完整表格與簽名欄。<br>
-            • 圖片、表格、字體顏色、版面配置 <strong>完全保留原樣</strong>。<br>
-            • 處理完成後自動下載精簡後的 .docx 檔案。
+            • 自動刪除 PTR、OJT、評鑑等章節。<br>
+            • <strong>保留三個區塊</strong>：封面(含LOGO)、個人資訊表格、工作經歷紀錄表格。<br>
+            • 每個區塊之間會<strong>強制分頁</strong>，確保列印或閱讀時各自獨立一頁。<br>
+            • 圖片、表格、字型、顏色完全保留原始樣式。
         </div>
-        <div class="footer">
-            China Airlines Engineering & Maintenance Organization – 工作經歷簿精簡工具
-        </div>
+        <div class="footer">China Airlines Engineering & Maintenance Organization</div>
     </div>
 </div>
 
@@ -222,7 +100,7 @@
         async function handleFile(file) {
             const ext = file.name.split('.').pop().toLowerCase();
             if (ext !== 'docx') {
-                setStatus('❌ 只接受 .docx 格式，請先依照步驟 1 將檔案轉換為 .docx 後再上傳。', true);
+                setStatus('❌ 只接受 .docx 格式，請先將 .doc 另存為 .docx 後再上傳。', true);
                 uploadedFile = null;
                 updateUI();
                 return;
@@ -231,20 +109,15 @@
                 const header = await file.slice(0, 4).arrayBuffer();
                 const bytes = new Uint8Array(header);
                 const isZip = (bytes[0] === 0x50 && bytes[1] === 0x4B);
-                if (!isZip) {
-                    setStatus('❌ 檔案不是有效的 DOCX (可能已損壞)，請重新另存為 .docx。', true);
-                    uploadedFile = null;
-                    updateUI();
-                    return;
-                }
+                if (!isZip) throw new Error();
             } catch(e) {
-                setStatus('❌ 無法讀取檔案，請重新選擇。', true);
+                setStatus('❌ 檔案不是有效的 DOCX，請重新另存為 .docx。', true);
                 uploadedFile = null;
                 updateUI();
                 return;
             }
             uploadedFile = file;
-            setStatus(`✔ 已選取：${file.name}，可開始精簡。`, false);
+            setStatus(`✔ 已選取：${file.name}`, false);
             updateUI();
         }
 
@@ -260,65 +133,69 @@
             if (e.target.files.length) handleFile(e.target.files[0]);
         });
 
-        // ---------- 核心萃取函數：只保留 封面 + 個人資訊 + 工作經歷紀錄 ----------
-        function extractSections(fullHtml) {
+        // 萃取並加入分頁符號 (使用 CSS page-break-before 或直接在區塊前插入分頁元素)
+        function extractSectionsWithPageBreaks(fullHtml) {
             const parser = new DOMParser();
             const doc = parser.parseFromString(fullHtml, 'text/html');
             const body = doc.body;
             const allElements = Array.from(body.children);
             const cloneNode = (node) => node.cloneNode(true);
             const container = doc.createElement('div');
-            container.className = 'extracted-logbook';
 
-            // 1. 封面區塊：從文件開頭到遇到「個人資訊」之前
-            let coverElements = [];
-            let hitPersonal = false;
+            // 輔助函式：建立分頁元件 (在 Word 中有效)
+            function addPageBreak() {
+                const pageBreakDiv = doc.createElement('div');
+                pageBreakDiv.style.pageBreakBefore = 'always';
+                pageBreakDiv.style.clear = 'both';
+                // 確保分頁符號在 Word 中生效 (有些解析器需要內容)
+                pageBreakDiv.innerHTML = '&nbsp;';
+                pageBreakDiv.style.height = '0px';
+                pageBreakDiv.style.margin = '0px';
+                pageBreakDiv.style.padding = '0px';
+                return pageBreakDiv;
+            }
+
+            // ---- 1. 擷取封面 (從開頭到「個人資訊」之前) ----
+            let coverElems = [];
             for (let el of allElements) {
                 const text = (el.innerText || '').toLowerCase();
-                if (text.includes('個人資訊') || text.includes('personnel data')) {
-                    hitPersonal = true;
-                    break;
-                }
-                coverElements.push(el);
+                if (text.includes('個人資訊') || text.includes('personnel data')) break;
+                coverElems.push(el);
             }
-            if (coverElements.length === 0 && allElements.length) {
-                coverElements = allElements.slice(0, Math.min(5, allElements.length));
+            if (coverElems.length === 0 && allElements.length) {
+                coverElems = allElements.slice(0, Math.min(5, allElements.length));
             }
-            coverElements.forEach(el => container.appendChild(cloneNode(el)));
+            coverElems.forEach(el => container.appendChild(cloneNode(el)));
+            
+            // 封面後強制分頁
+            container.appendChild(addPageBreak());
 
-            // 加入一個分隔線（可選）
-            container.appendChild(doc.createElement('hr')).style.borderTop = '1px solid #aaa';
-
-            // 2. 個人資訊區塊：從「個人資訊」標題開始，到遇到「工作經歷紀錄」之前
-            let personalSection = [];
+            // ---- 2. 擷取「個人資訊」區塊 ----
+            let personalElems = [];
             let inPersonal = false;
-            let stopPersonal = false;
             for (let el of allElements) {
                 const text = (el.innerText || '');
                 if (!inPersonal && (text.includes('個人資訊') || text.includes('Personnel Data'))) {
                     inPersonal = true;
                 }
-                if (inPersonal && !stopPersonal) {
-                    const lowerText = text.toLowerCase();
-                    if (lowerText.includes('工作經歷紀錄') || lowerText.includes('maintenance experience records')) {
-                        stopPersonal = true;
+                if (inPersonal) {
+                    const lower = text.toLowerCase();
+                    if (lower.includes('工作經歷紀錄') || lower.includes('maintenance experience records')) {
                         break;
                     }
-                    personalSection.push(el);
+                    personalElems.push(el);
                 }
             }
-            if (personalSection.length) {
-                const personalWrapper = doc.createElement('div');
-                personalSection.forEach(el => personalWrapper.appendChild(cloneNode(el)));
-                container.appendChild(personalWrapper);
+            if (personalElems.length) {
+                personalElems.forEach(el => container.appendChild(cloneNode(el)));
             } else {
                 container.appendChild(doc.createElement('p')).innerText = '⚠️ 未偵測到「個人資訊」區塊';
             }
+            // 個人資訊後分頁
+            container.appendChild(addPageBreak());
 
-            container.appendChild(doc.createElement('hr')).style.borderTop = '1px solid #aaa';
-
-            // 3. 工作經歷紀錄區塊：從「工作經歷紀錄」標題開始到文件結尾
-            let workSection = [];
+            // ---- 3. 擷取「工作經歷紀錄」區塊（到文件結尾）----
+            let workElems = [];
             let inWork = false;
             for (let el of allElements) {
                 const text = (el.innerText || '');
@@ -326,29 +203,26 @@
                     inWork = true;
                 }
                 if (inWork) {
-                    workSection.push(el);
+                    workElems.push(el);
                 }
             }
-            if (workSection.length) {
-                const workWrapper = doc.createElement('div');
-                workSection.forEach(el => workWrapper.appendChild(cloneNode(el)));
-                container.appendChild(workWrapper);
+            if (workElems.length) {
+                workElems.forEach(el => container.appendChild(cloneNode(el)));
             } else {
                 container.appendChild(doc.createElement('p')).innerText = '⚠️ 未偵測到「工作經歷紀錄」區塊';
             }
 
-            // 額外確保簽名欄位存在（若最後沒有，補一個）
+            // 確保簽名欄位存在（如果原本的工作經歷區塊內沒有，補一個）
             let hasSignature = false;
-            for (let el of workSection) {
-                const txt = (el.innerText || '');
-                if (txt.includes('Name:') && txt.includes('Signature') && txt.includes('ID No.')) {
+            for (let el of workElems) {
+                if ((el.innerText || '').includes('Name:') && (el.innerText || '').includes('Signature')) {
                     hasSignature = true;
                     break;
                 }
             }
             if (!hasSignature) {
-                const sigBlock = doc.createElement('div');
-                sigBlock.innerHTML = `<div style="margin-top: 40px; border-top:1px solid #aaa; padding-top:16px;">
+                const sigDiv = doc.createElement('div');
+                sigDiv.innerHTML = `<div style="margin-top: 30px;">
                     <table style="width:100%; border:none;"><tr>
                     <td style="border:none;"><strong>Name:</strong> _________________</td>
                     <td style="border:none;"><strong>Signature:</strong> _________________</td>
@@ -356,21 +230,22 @@
                     <td style="border:none;"><strong>License / No.:</strong> ___________</td>
                     </tr>
                 </table></div>`;
-                container.appendChild(sigBlock);
+                container.appendChild(sigDiv);
             }
 
-            // 組合最終 HTML
+            // 最終 HTML 字串，加上額外樣式確保分頁在 Word 中正常
             return `<!DOCTYPE html>
             <html>
-            <head><meta charset="UTF-8"><title>CAL_精簡版_封面_個人資訊_工作經歷</title>
+            <head><meta charset="UTF-8"><title>CAL_精簡_分頁版</title>
             <style>
                 body { margin: 1.2cm auto; padding: 15px 25px; max-width: 1100px; font-family: 'Calibri', 'Segoe UI', Arial, sans-serif; background: white; line-height: 1.35; }
                 img { max-width: 100%; height: auto; }
                 table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 10pt; border: 1px solid #7f7f7f; }
                 td, th { border: 1px solid #7f7f7f; padding: 6px 8px; vertical-align: top; }
-                h1, h2, h3 { color: #003366; }
-                .extracted-logbook { width: 100%; }
-                hr { border: 0; border-top: 1px solid #aaa; }
+                h1, h2, h3, h4 { color: #003366; }
+                div, p, table, .MsoNormal { page-break-inside: avoid; }
+                /* 強制分頁樣式 */
+                .page-break { page-break-before: always; clear: both; height: 0; margin: 0; padding: 0; }
             </style>
             </head>
             <body>${container.innerHTML}</body>
@@ -381,7 +256,7 @@
             if (!uploadedFile || isProcessing) return;
             isProcessing = true;
             processBtn.disabled = true;
-            setStatus('🔄 正在解析 DOCX 並保留「封面＋個人資訊＋工作經歷紀錄」...', false, true);
+            setStatus('🔄 正在解析並保留三個區塊（自動分頁）...', false, true);
             try {
                 await waitForLibs();
                 const arrayBuffer = await uploadedFile.arrayBuffer();
@@ -393,24 +268,19 @@
                     })
                 });
                 const fullHtml = result.value;
-                if (!fullHtml || fullHtml.trim().length < 50) {
-                    throw new Error('轉換結果過短，檔案可能不是標準 DOCX 或已損壞');
-                }
-                const extractedHtml = extractSections(fullHtml);
-                const docxBlob = htmlDocx.asBlob(extractedHtml, {
+                if (!fullHtml || fullHtml.trim().length < 50) throw new Error('轉換結果過短');
+                
+                const finalHtml = extractSectionsWithPageBreaks(fullHtml);
+                const docxBlob = htmlDocx.asBlob(finalHtml, {
                     orientation: 'portrait',
                     margins: { top: 1000, right: 900, bottom: 1000, left: 900 }
                 });
-                const outName = uploadedFile.name.replace(/\.docx$/i, '') + '_精簡版(僅封面+個人+工作經歷).docx';
+                const outName = uploadedFile.name.replace(/\.docx$/i, '') + '_精簡分頁版.docx';
                 saveAs(docxBlob, outName);
-                setStatus(`✨ 處理完成！已刪除 PTR、OJT、評鑑等章節，下載檔案：${outName}`, false);
+                setStatus(`✨ 完成！封面、個人資訊、工作經歷各佔一頁，其餘已刪除。`, false);
             } catch (err) {
                 console.error(err);
-                let errorMsg = err.message || '處理失敗';
-                if (errorMsg.includes('htmlDocx') || errorMsg.includes('undefined')) {
-                    errorMsg = '套件加載失敗，請檢查網路後重新整理頁面再試。';
-                }
-                setStatus(`❌ 處理失敗：${errorMsg}`, true);
+                setStatus(`❌ 失敗：${err.message || '請確認檔案格式正確'}`, true);
             } finally {
                 isProcessing = false;
                 updateUI();
