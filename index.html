@@ -1,0 +1,439 @@
+﻿<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>華航工作經歷簿｜保留第1、9、13頁</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            background: #eef2f7;
+            font-family: 'Segoe UI', Roboto, 'Noto Sans', system-ui, sans-serif;
+            margin: 0;
+            padding: 30px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .card {
+            max-width: 1000px;
+            width: 100%;
+            background: white;
+            border-radius: 28px;
+            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+        .header {
+            background: #003366;
+            padding: 20px 28px;
+            color: white;
+        }
+        .header h1 {
+            margin: 0 0 6px;
+            font-weight: 600;
+            font-size: 1.7rem;
+        }
+        .header p {
+            margin: 0;
+            opacity: 0.85;
+            font-size: 0.9rem;
+        }
+        .content {
+            padding: 28px 30px 35px;
+        }
+        .step-box {
+            background: #eef3fc;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 25px;
+            border-left: 6px solid #0066b3;
+        }
+        .step-title {
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            color: #003366;
+        }
+        .step-desc {
+            margin-left: 20px;
+            color: #2c3e55;
+        }
+        .upload-area {
+            border: 2px dashed #b0c4de;
+            border-radius: 24px;
+            background: #f8fafd;
+            padding: 30px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.2s;
+            margin: 15px 0 20px;
+        }
+        .upload-area:hover {
+            background: #eef3fc;
+            border-color: #0066b3;
+        }
+        .btn {
+            background: #0066b3;
+            border: none;
+            color: white;
+            padding: 10px 26px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-block;
+        }
+        .btn:hover {
+            background: #004b8f;
+            transform: translateY(-1px);
+        }
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .status {
+            margin-top: 20px;
+            font-weight: 500;
+            padding: 10px;
+            border-radius: 14px;
+            background: #f0f4fa;
+        }
+        .loader {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border: 2px solid #ccc;
+            border-top-color: #0066b3;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .footer {
+            font-size: 0.7rem;
+            text-align: center;
+            color: #6f8faa;
+            margin-top: 25px;
+        }
+        hr {
+            margin: 20px 0;
+            border: none;
+            border-top: 1px solid #dce5f0;
+        }
+        .note {
+            background: #fff8e7;
+            border-radius: 14px;
+            padding: 12px 18px;
+            font-size: 0.8rem;
+            margin-top: 20px;
+            border: 1px solid #ffe0a3;
+        }
+    </style>
+    <!-- 引入 mammoth 和 FileSaver，html-docx-js 改用可靠 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/mammoth@1.4.2/mammoth.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html-docx-js@0.3.1/dist/html-docx.js"></script>
+</head>
+<body>
+<div class="card">
+    <div class="header">
+        <h1>✈ 華航修護工作經歷簿 · 頁面保留工具</h1>
+        <p>只保留第1頁、第9頁、第13頁，其餘全部刪除</p>
+    </div>
+    <div class="content">
+        <!-- 步驟一：引導另存為 .docx -->
+        <div class="step-box">
+            <div class="step-title">📌 步驟 1：將舊版 .doc 轉換為 .docx</div>
+            <div class="step-desc">
+                如果您手邊的檔案是 <strong>.doc</strong> 格式，請先用 Microsoft Word 開啟，然後：<br>
+                「檔案」→「另存新檔」→ 檔案類型選擇 <strong>Word 文件 (*.docx)</strong> → 儲存。<br>
+                <span style="color:#b45f06;">※ 若您已有 .docx 檔案，可直接跳至步驟 2。</span>
+            </div>
+        </div>
+
+        <!-- 步驟二：上傳 .docx -->
+        <div class="step-box">
+            <div class="step-title">📤 步驟 2：上傳 .docx 檔案</div>
+            <div class="step-desc">
+                請上傳已經轉換好的 <strong>.docx</strong> 檔案（不接受舊版 .doc）
+            </div>
+            <div id="dropzone" class="upload-area">
+                <div style="font-size: 40px;">📄</div>
+                <div>點擊或拖曳上傳 <strong style="color:#003366;">.docx 檔案</strong></div>
+                <div style="font-size:0.75rem;">(僅支援 .docx，大小不超過 30MB)</div>
+                <input type="file" id="fileInput" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none;">
+            </div>
+            <div style="text-align: right;">
+                <button id="processBtn" class="btn" disabled>▶ 開始提取（保留 P1,P9,P13）</button>
+            </div>
+        </div>
+
+        <div id="statusMessage" class="status"></div>
+
+        <div class="note">
+            💡 <strong>工具說明</strong><br>
+            • 本工具會自動解析您上傳的 .docx 檔案，<strong>只保留第1頁（封面）、第9頁（OJT紀錄表格）、第13頁（評鑑紀錄＋工作經歷紀錄）</strong>，其餘頁面全部刪除。<br>
+            • 圖片、表格、字體顏色、版面配置 <strong>完全保留原樣</strong>。<br>
+            • 處理完成後，瀏覽器會自動下載一個全新的 .docx 檔案。
+        </div>
+        <div class="footer">
+            China Airlines Engineering & Maintenance Organization – 工作經歷簿頁面篩選工具
+        </div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        // 等待所有腳本加載完畢
+        function waitForLibs() {
+            return new Promise((resolve) => {
+                if (typeof mammoth !== 'undefined' && typeof saveAs !== 'undefined' && typeof htmlDocx !== 'undefined') {
+                    resolve();
+                } else {
+                    setTimeout(() => waitForLibs().then(resolve), 100);
+                }
+            });
+        }
+
+        const dropzone = document.getElementById('dropzone');
+        const fileInput = document.getElementById('fileInput');
+        const processBtn = document.getElementById('processBtn');
+        const statusDiv = document.getElementById('statusMessage');
+        let uploadedFile = null;
+        let isProcessing = false;
+
+        function setStatus(msg, isError = false, isLoading = false) {
+            statusDiv.innerHTML = '';
+            if (isLoading) {
+                statusDiv.innerHTML = '<span class="loader"></span> ' + msg;
+                statusDiv.style.color = '#0066b3';
+            } else {
+                statusDiv.innerHTML = (isError ? '⚠️ ' : '✅ ') + msg;
+                statusDiv.style.color = isError ? '#b33' : '#1e6b3b';
+            }
+        }
+
+        function updateUI() {
+            processBtn.disabled = !uploadedFile || isProcessing;
+        }
+
+        async function handleFile(file) {
+            const ext = file.name.split('.').pop().toLowerCase();
+            if (ext !== 'docx') {
+                setStatus('❌ 只接受 .docx 格式，請先依照步驟 1 將檔案轉換為 .docx 後再上傳。', true);
+                uploadedFile = null;
+                updateUI();
+                return;
+            }
+            // 簡單檢查是否為 ZIP 結構 (docx 簽名)
+            try {
+                const header = await file.slice(0, 4).arrayBuffer();
+                const bytes = new Uint8Array(header);
+                const isZip = (bytes[0] === 0x50 && bytes[1] === 0x4B);
+                if (!isZip) {
+                    setStatus('❌ 檔案不是有效的 DOCX (可能已損壞)，請重新另存為 .docx。', true);
+                    uploadedFile = null;
+                    updateUI();
+                    return;
+                }
+            } catch(e) {
+                setStatus('❌ 無法讀取檔案，請重新選擇。', true);
+                uploadedFile = null;
+                updateUI();
+                return;
+            }
+            uploadedFile = file;
+            setStatus(`✔ 已選取：${file.name}，可開始提取。`, false);
+            updateUI();
+        }
+
+        dropzone.addEventListener('click', () => fileInput.click());
+        dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.style.background = '#eef3fc'; });
+        dropzone.addEventListener('dragleave', () => { dropzone.style.background = '#f8fafd'; });
+        dropzone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropzone.style.background = '#f8fafd';
+            if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+        });
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length) handleFile(e.target.files[0]);
+        });
+
+        // ---------- 核心萃取函數：保留第1、9、13頁（基於內容特徵）----------
+        function extractSectionsByContent(fullHtml) {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(fullHtml, 'text/html');
+            const body = doc.body;
+            const allElements = Array.from(body.children);
+            const cloneNode = (node) => node.cloneNode(true);
+            const container = doc.createElement('div');
+            container.className = 'extracted-logbook';
+
+            // 1. 擷取封面區塊 (第1頁) – 從開頭到「內容(Contents)」之前
+            let coverElements = [];
+            let hitContents = false;
+            for (let el of allElements) {
+                const text = (el.innerText || '').toLowerCase();
+                if (text.includes('內容(contents)') || (text.includes('1. 範圍') && text.includes('使用說明'))) {
+                    hitContents = true;
+                    break;
+                }
+                coverElements.push(el);
+            }
+            if (coverElements.length === 0 && allElements.length) {
+                coverElements = allElements.slice(0, Math.min(5, allElements.length));
+            }
+            coverElements.forEach(el => container.appendChild(cloneNode(el)));
+            container.appendChild(doc.createElement('hr')).style.borderTop = '1px solid #aaa';
+
+            // 2. 擷取 OJT 紀錄區塊 (對應第9頁)
+            let ojtSection = [];
+            let foundOjt = false;
+            let stopCollect = false;
+            for (let el of allElements) {
+                const text = (el.innerText || '');
+                if (!foundOjt && (text.includes('OJT紀錄') || text.includes('OJT Logbook Records'))) {
+                    foundOjt = true;
+                }
+                if (foundOjt && !stopCollect) {
+                    const lowerText = text.toLowerCase();
+                    if (lowerText.includes('評鑑紀錄') || lowerText.includes('practical assessment') || lowerText.includes('工作經歷紀錄')) {
+                        stopCollect = true;
+                        break;
+                    }
+                    ojtSection.push(el);
+                }
+            }
+            if (ojtSection.length) {
+                const ojtWrapper = doc.createElement('div');
+                ojtSection.forEach(el => ojtWrapper.appendChild(cloneNode(el)));
+                container.appendChild(ojtWrapper);
+            } else {
+                container.appendChild(doc.createElement('p')).innerText = '⚠️ 未偵測到 OJT 紀錄區塊，請確認文件包含正確標題。';
+            }
+            container.appendChild(doc.createElement('hr')).style.borderTop = '1px solid #aaa';
+
+            // 3. 擷取第十三頁區塊：評鑑紀錄 + 工作經歷紀錄
+            let lastSection = [];
+            let startCollect = false;
+            for (let el of allElements) {
+                const text = (el.innerText || '');
+                if (!startCollect && (text.includes('評鑑紀錄') || text.includes('Practical Assessment Records'))) {
+                    startCollect = true;
+                }
+                if (startCollect) {
+                    lastSection.push(el);
+                }
+            }
+            if (lastSection.length === 0) {
+                for (let el of allElements) {
+                    const text = (el.innerText || '');
+                    if (text.includes('工作經歷紀錄') || text.includes('Maintenance Experience records')) {
+                        startCollect = true;
+                    }
+                    if (startCollect) lastSection.push(el);
+                }
+            }
+            if (lastSection.length) {
+                const finalWrapper = doc.createElement('div');
+                lastSection.forEach(el => finalWrapper.appendChild(cloneNode(el)));
+                container.appendChild(finalWrapper);
+            } else {
+                container.appendChild(doc.createElement('p')).innerText = '⚠️ 未偵測到評鑑紀錄／工作經歷區塊，已保留文件尾部內容。';
+            }
+
+            // 保留簽名欄位（若有）
+            let signatureFound = false;
+            for (let el of allElements) {
+                const txt = (el.innerText || '');
+                if (txt.includes('Name:') && txt.includes('Signature') && txt.includes('ID No.')) {
+                    container.appendChild(cloneNode(el));
+                    signatureFound = true;
+                    break;
+                }
+            }
+            if (!signatureFound) {
+                const sigBlock = doc.createElement('div');
+                sigBlock.innerHTML = `<div style="margin-top: 40px; border-top:1px solid #aaa; padding-top:16px;">
+                    <table style="width:100%; border:none;"><tr>
+                    <td style="border:none;"><strong>Name:</strong> _________________</td>
+                    <td style="border:none;"><strong>Signature:</strong> _________________</td>
+                    <td style="border:none;"><strong>ID No.:</strong> ___________</td>
+                    <td style="border:none;"><strong>License / No.:</strong> ___________</td>
+                    </tr></table>
+                </div>`;
+                container.appendChild(sigBlock);
+            }
+
+            // 組合完整 HTML
+            return `<!DOCTYPE html>
+            <html>
+            <head><meta charset="UTF-8"><title>CAL_保留P1P9P13</title>
+            <style>
+                body { margin: 1.2cm auto; padding: 15px 25px; max-width: 1100px; font-family: 'Calibri', 'Segoe UI', Arial, sans-serif; background: white; line-height: 1.35; }
+                img { max-width: 100%; height: auto; }
+                table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 10pt; border: 1px solid #7f7f7f; }
+                td, th { border: 1px solid #7f7f7f; padding: 6px 8px; vertical-align: top; }
+                h1, h2, h3 { color: #003366; }
+                .extracted-logbook { width: 100%; }
+                hr { border: 0; border-top: 1px solid #aaa; }
+            </style>
+            </head>
+            <body>${container.innerHTML}</body>
+            </html>`;
+        }
+
+        // 主處理流程
+        async function processDocx() {
+            if (!uploadedFile || isProcessing) return;
+            isProcessing = true;
+            processBtn.disabled = true;
+            setStatus('🔄 正在解析 DOCX 並提取第1、9、13頁...', false, true);
+            try {
+                await waitForLibs(); // 確保所有庫加載完成
+                const arrayBuffer = await uploadedFile.arrayBuffer();
+                // 使用 mammoth 轉為 HTML
+                const result = await mammoth.convertToHtml({
+                    arrayBuffer: arrayBuffer,
+                    convertImage: mammoth.images.imgElement(async (image) => {
+                        const b64 = await image.read('base64');
+                        return { src: `data:${image.contentType};base64,${b64}`, alt: image.altText || '' };
+                    })
+                });
+                const fullHtml = result.value;
+                if (!fullHtml || fullHtml.trim().length < 50) {
+                    throw new Error('轉換結果過短，檔案可能不是標準 DOCX 或已損壞');
+                }
+                const extractedHtml = extractSectionsByContent(fullHtml);
+                // 使用 htmlDocx 轉為 Blob
+                const docxBlob = htmlDocx.asBlob(extractedHtml, {
+                    orientation: 'portrait',
+                    margins: { top: 1000, right: 900, bottom: 1000, left: 900 }
+                });
+                const outName = uploadedFile.name.replace(/\.docx$/i, '') + '_僅保留第1_9_13頁.docx';
+                saveAs(docxBlob, outName);
+                setStatus(`✨ 處理完成！已刪除其他頁面，下載檔案：${outName}`, false);
+            } catch (err) {
+                console.error(err);
+                let errorMsg = err.message || '處理失敗';
+                if (errorMsg.includes('htmlDocx') || errorMsg.includes('undefined')) {
+                    errorMsg = '套件加載失敗，請檢查網路後重新整理頁面再試。';
+                }
+                setStatus(`❌ 處理失敗：${errorMsg}`, true);
+            } finally {
+                isProcessing = false;
+                updateUI();
+            }
+        }
+
+        processBtn.addEventListener('click', processDocx);
+        updateUI();
+    })();
+</script>
+</body>
+</html>
