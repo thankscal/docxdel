@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>三頁QP模板提取工具</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Microsoft JhengHei',Arial,sans-serif;background:#0a0e1a;color:#e0e8ff;
+     min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.wrap{background:#111827;border:1px solid #1e3a5f;border-radius:16px;padding:40px;
+      width:540px;box-shadow:0 0 40px rgba(0,120,255,.12)}
+h1{text-align:center;font-size:20px;color:#4fc3f7;letter-spacing:1px;margin-bottom:6px}
+.sub{text-align:center;font-size:13px;color:#607d9e;margin-bottom:20px;line-height:1.6}
+.pages-list{background:#0d1627;border:1px solid #1e3a5f;border-radius:10px;
+            padding:14px 18px;margin-bottom:20px}
+.pages-list p{font-size:12px;color:#607d9e;margin-bottom:8px;text-transform:uppercase;letter-spacing:1px}
+.page-item{display:flex;align-items:center;gap:10px;padding:5px 0;
+           border-bottom:1px solid #1a2d4a;font-size:13px;color:#90a4be}
+.page-item:last-child{border-bottom:none}
+.page-num{background:#1e3a5f;color:#81d4fa;border-radius:6px;padding:2px 8px;
+          font-size:12px;font-weight:600;min-width:50px;text-align:center}
+.info-box{background:#0d1f2d;border:1px solid #1e4a5f;border-radius:8px;
+          padding:12px 16px;margin-bottom:20px;font-size:13px;color:#78a8be;line-height:1.8}
+.info-box b{color:#4fc3f7}
+.drop{border:2px dashed #1e3a5f;border-radius:12px;padding:36px 20px;
+      text-align:center;cursor:pointer;transition:.2s;background:#0d1627;position:relative}
+.drop:hover,.drop.over{border-color:#4fc3f7;background:#111f35}
+.drop input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.icon{font-size:38px;margin-bottom:10px}
+.dtxt{font-size:15px;color:#90a4be}
+.dhint{font-size:12px;color:#4a637d;margin-top:5px}
+.fname{margin-top:12px;padding:9px 14px;background:#0d1f35;border:1px solid #1e3a5f;
+       border-radius:8px;font-size:13px;color:#4fc3f7;display:none;word-break:break-all}
+.btn{width:100%;margin-top:16px;padding:14px;
+     background:linear-gradient(135deg,#1565c0,#0288d1);color:#fff;
+     border:none;border-radius:10px;font-size:16px;font-weight:600;
+     cursor:pointer;transition:opacity .2s;letter-spacing:.5px}
+.btn:hover{opacity:.9}.btn:disabled{opacity:.4;cursor:not-allowed}
+.status{margin-top:14px;padding:11px 14px;border-radius:8px;font-size:14px;display:none;line-height:1.6}
+.proc{background:#1a2d4a;border:1px solid #2d6a9f;color:#81d4fa;display:block}
+.ok  {background:#0d2d1a;border:1px solid #1b5e20;color:#81c784;display:block}
+.err {background:#2d1010;border:1px solid #7f1919;color:#ef9a9a;display:block}
+.spin{display:inline-block;width:13px;height:13px;border:2px solid #4fc3f7;
+      border-top-color:transparent;border-radius:50%;animation:sp .8s linear infinite;
+      margin-right:7px;vertical-align:middle}
+@keyframes sp{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>✈ QP06M8003F8-R10 提取工具</h1>
+  <p class="sub">從原始 R10 .docx 提取指定頁面<br>版型、字型、表格完全還原</p>
+  <div class="pages-list">
+    <p>📋 提取頁面</p>
+    <div class="page-item"><span class="page-num">頁 1</span> 封面（Mechanic Log Book / 姓名 / 員工號）</div>
+    <div class="page-item"><span class="page-num">頁 2</span> 個人資訊（Trainee Data / 執照 / 聘僱資訊）</div>
+    <div class="page-item"><span class="page-num">頁 3</span> 工作經歷紀錄表格（第5節）</div>
+  </div>
+  <div class="info-box">
+    <b>使用說明：</b><br>
+    1. 用 Word 開啟 <b>QP06M8003F8-R10.doc</b><br>
+    2. 另存為 <b>.docx</b> 格式（Ctrl+Shift+S）<br>
+    3. 上傳 .docx → 自動下載「三頁QP模板.docx」
+  </div>
+  <div class="drop" id="dz">
+    <input type="file" id="fi" accept=".docx">
+    <div class="icon">📄</div>
+    <div class="dtxt">點擊選擇或拖放 .docx</div>
+    <div class="dhint">僅支援 QP06M8003F8-R10 格式</div>
+  </div>
+  <div class="fname" id="fn"></div>
+  <button class="btn" id="btn" disabled>開始提取</button>
+  <div class="status" id="st"></div>
+</div>
+
+<script>
+const NS = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main';
+
+function getElems(node){
+  return Array.from(node.childNodes).filter(function(n){ return n.nodeType === 1; });
+}
+function getText(node){
+  try {
+    return Array.from(node.getElementsByTagNameNS(NS,'t'))
+                .map(function(t){ return t.textContent||''; }).join('').trim();
+  } catch(e){ return ''; }
+}
+function nodeHasPB(node){
+  try {
+    return Array.from(node.getElementsByTagNameNS(NS,'br'))
+                .some(function(b){ return (b.getAttribute('w:type')||'') === 'page'; });
+  } catch(e){ return false; }
+}
+function nodeHasSectPr(node){
+  try {
+    var pPr = node.getElementsByTagNameNS(NS,'pPr')[0];
+    return !!(pPr && pPr.getElementsByTagNameNS(NS,'sectPr').length > 0);
+  } catch(e){ return false; }
+}
+
+async function processDocx(buf){
+  // Step 1: 解壓
+  var zip;
+  try { zip = await JSZip.loadAsync(buf); }
+  catch(e){ throw new Error('ZIP 解壓失敗: ' + e.message); }
+
+  if(!zip.file('word/document.xml'))
+    throw new Error('找不到 word/document.xml');
+
+  // Step 2: 解析 XML
+  var docStr;
+  try { docStr = await zip.file('word/document.xml').async('string'); }
+  catch(e){ throw new Error('讀取 XML 失敗: ' + e.message); }
+
+  var docXml;
+  try {
+    docXml = new DOMParser().parseFromString(docStr, 'application/xml');
+    var parseErr = docXml.querySelector('parsererror');
+    if(parseErr) throw new Error(parseErr.textContent.slice(0,80));
+  } catch(e){ throw new Error('XML 解析失敗: ' + e.message); }
+
+  var body = docXml.getElementsByTagNameNS(NS,'body')[0];
+  if(!body) throw new Error('找不到 body 元素');
+
+  var ch = getElems(body);
+  console.log('body children:', ch.length);
+  if(ch.length < 5) throw new Error('文件結構異常，body只有' + ch.length + '個子節點');
+
+  // Step 3: 找封面姓名行
+  var nameIdx = -1;
+  for(var i = 0; i < Math.min(25, ch.length); i++){
+    var t = getText(ch[i]);
+    if(t.indexOf('姓名') >= 0 || (t.indexOf('Name') >= 0 && t.indexOf('ID') >= 0)){
+      nameIdx = i; break;
+    }
+  }
+  if(nameIdx === -1) throw new Error('找不到封面姓名行，請確認是 R10 格式');
+
+  // Step 4: 找 Trainee Data 表格
+  var traineeIdx = -1;
+  for(var i = 0; i < ch.length; i++){
+    if(ch[i].localName !== 'tbl') continue;
+    var t = getText(ch[i]);
+    if(t.indexOf('Trainee Data') >= 0 && t.indexOf('Surname') >= 0 && t.indexOf('填上中文') < 0){
+      traineeIdx = i; break;
+    }
+  }
+  if(traineeIdx === -1) throw new Error('找不到個人資訊表格（Trainee Data）');
+
+  var personnelStart = traineeIdx;
+  for(var i = traineeIdx-1; i >= Math.max(0, traineeIdx-5); i--){
+    var t = getText(ch[i]);
+    if(t.indexOf('個人資訊') >= 0 || t.indexOf('Personnel Data') >= 0){
+      personnelStart = i; break;
+    }
+  }
+  var personnelEnd = ch.length - 1;
+  for(var i = traineeIdx+1; i < ch.length; i++){
+    if(nodeHasPB(ch[i]) || nodeHasSectPr(ch[i])){ personnelEnd = i; break; }
+  }
+
+  // Step 5: 找工作經歷表格
+  var workTblIdx = -1;
+  for(var i = ch.length-1; i >= 0; i--){
+    if(ch[i].localName !== 'tbl') continue;
+    var t = getText(ch[i]);
+    if(t.indexOf('Date') >= 0 && t.indexOf('Location') >= 0 && t.indexOf('A/C') >= 0
+       && t.indexOf('填寫說明') < 0 && t.indexOf('Description/ Remarks') < 0){
+      workTblIdx = i; break;
+    }
+  }
+  if(workTblIdx === -1) throw new Error('找不到工作經歷表格');
+
+  var workStart = workTblIdx;
+  for(var i = workTblIdx-1; i >= Math.max(0, workTblIdx-5); i--){
+    var t = getText(ch[i]);
+    if(t.indexOf('工作經歷紀錄') >= 0 || t.indexOf('Maintenance Experience') >= 0){
+      workStart = i; break;
+    }
+  }
+  var workEnd = ch.length - 1;
+  for(var i = workTblIdx+1; i < ch.length; i++){
+    if(ch[i].localName === 'sectPr'){ workEnd = i; break; }
+  }
+
+  console.log('封面[0:' + (nameIdx+1) + '] 個人資訊[' + personnelStart + ':' + personnelEnd + '] 工作經歷[' + workStart + ':' + workEnd + ']');
+
+  // Step 6: 取 body 直接子 sectPr
+  var globalSectPr = null;
+  var bodyChildren = Array.from(body.childNodes);
+  for(var i = 0; i < bodyChildren.length; i++){
+    var n = bodyChildren[i];
+    if(n.nodeType === 1 && n.localName === 'sectPr' && n.namespaceURI === NS){
+      globalSectPr = n; break;
+    }
+  }
+  if(!globalSectPr) throw new Error('找不到頁面設定 sectPr');
+
+  // 強制修正邊距 left=680, right=680
+  var pgMarEl = globalSectPr.getElementsByTagNameNS(NS,'pgMar')[0];
+  if(pgMarEl){
+    pgMarEl.setAttribute('w:left','680');
+    pgMarEl.setAttribute('w:right','680');
+  }
+
+  // Step 7: 縮小封面底部兩個空行的 spacing
+  for(var di = -2; di <= -1; di++){
+    var idx2 = nameIdx + di;
+    if(idx2 >= 0 && idx2 < ch.length){
+      var pPr2 = ch[idx2].getElementsByTagNameNS(NS,'pPr')[0];
+      if(pPr2){
+        var sp2 = pPr2.getElementsByTagNameNS(NS,'spacing')[0];
+        if(sp2){
+          sp2.setAttribute('w:before','0');
+          sp2.setAttribute('w:after','0');
+        }
+      }
+    }
+  }
+
+  // Step 8: 重組 body
+  while(body.firstChild) body.removeChild(body.firstChild);
+
+  // 封面
+  for(var i = 0; i < nameIdx; i++) body.appendChild(ch[i].cloneNode(true));
+
+  // 姓名行 + pPr/sectPr（節結束換頁）
+  var nameNode = ch[nameIdx].cloneNode(true);
+  var namePPr = nameNode.getElementsByTagNameNS(NS,'pPr')[0];
+  if(!namePPr){
+    namePPr = docXml.createElementNS(NS,'w:pPr');
+    nameNode.insertBefore(namePPr, nameNode.firstChild);
+  }
+  namePPr.appendChild(globalSectPr.cloneNode(true));
+  body.appendChild(nameNode);
+
+  // 個人資訊
+  for(var i = personnelStart; i < personnelEnd; i++){
+    var node = ch[i].cloneNode(true);
+    if(i === personnelStart){
+      Array.from(node.getElementsByTagNameNS(NS,'br')).forEach(function(br){
+        if((br.getAttribute('w:type')||'') === 'page') br.parentNode.removeChild(br);
+      });
+    }
+    body.appendChild(node);
+  }
+
+  // pageBreak
+  var pbP = docXml.createElementNS(NS,'w:p');
+  var pbR = docXml.createElementNS(NS,'w:r');
+  var pbBr = docXml.createElementNS(NS,'w:br');
+  pbBr.setAttribute('w:type','page');
+  pbR.appendChild(pbBr); pbP.appendChild(pbR);
+  body.appendChild(pbP);
+
+  // 工作經歷
+  for(var i = workStart; i < workEnd; i++){
+    var node = ch[i].cloneNode(true);
+    if(i === workStart){
+      Array.from(node.getElementsByTagNameNS(NS,'br')).forEach(function(br){
+        if((br.getAttribute('w:type')||'') === 'page') br.parentNode.removeChild(br);
+      });
+    }
+    body.appendChild(node);
+  }
+  body.appendChild(globalSectPr.cloneNode(true));
+
+  // Step 9: 序列化打包
+  var newDocStr;
+  try { newDocStr = new XMLSerializer().serializeToString(docXml); }
+  catch(e){ throw new Error('XML 序列化失敗: ' + e.message); }
+
+  zip.file('word/document.xml', newDocStr);
+
+  var blob;
+  try {
+    blob = await zip.generateAsync({
+      type:'blob',
+      mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      compression:'DEFLATE', compressionOptions:{level:6}
+    });
+  } catch(e){ throw new Error('ZIP 打包失敗: ' + e.message); }
+
+  console.log('blob size:', blob.size);
+  return blob;
+}
+
+// ── UI ──
+var fi  = document.getElementById('fi');
+var fn  = document.getElementById('fn');
+var btn = document.getElementById('btn');
+var st  = document.getElementById('st');
+var dz  = document.getElementById('dz');
+
+function setFile(f){
+  fn.textContent = '📎 ' + f.name;
+  fn.style.display = 'block';
+  btn.disabled = false;
+  st.style.display = 'none';
+}
+
+fi.addEventListener('change', function(){
+  if(fi.files[0]) setFile(fi.files[0]);
+});
+
+dz.addEventListener('dragover', function(e){ e.preventDefault(); dz.classList.add('over'); });
+dz.addEventListener('dragleave', function(){ dz.classList.remove('over'); });
+dz.addEventListener('drop', function(e){
+  e.preventDefault(); dz.classList.remove('over');
+  var f = e.dataTransfer.files[0];
+  if(f) setFile(f);
+  // 注意：拖放時不設 fi.files（部分瀏覽器不支援），改存在變數
+  window._droppedFile = f;
+});
+
+btn.addEventListener('click', async function(){
+  // 取檔案：優先用 fi.files，其次用拖放暫存
+  var file = (fi.files && fi.files[0]) || window._droppedFile;
+  if(!file){ st.className='status err'; st.innerHTML='❌ 請先選擇檔案'; return; }
+
+  btn.disabled = true;
+  st.className = 'status proc';
+  st.innerHTML = '<span class="spin"></span>分析中，請稍候...';
+
+  try {
+    var buf  = await file.arrayBuffer();
+    var blob = await processDocx(buf);
+
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = '三頁QP模板.docx';
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 10000);
+
+    st.className = 'status ok';
+    st.innerHTML = '✅ 完成！<b>三頁QP模板.docx</b> 已下載';
+  } catch(e) {
+    console.error('processDocx error:', e);
+    st.className = 'status err';
+    st.innerHTML = '❌ ' + (e.message || '未知錯誤') +
+      '<br><small style="opacity:.7">請按 F12 → Console 查看詳細</small>';
+  } finally {
+    btn.disabled = false;
+  }
+});
+</script>
+</body>
+</html>
